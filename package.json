@@ -1,0 +1,25 @@
+{
+  "name": "factbots",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "YouTube Shorts automation: a robot explains a random fact, a caveman reacts. Two voices, synced word-by-word subtitles. Fully local, zero paid APIs.",
+  "scripts": {
+    "make": "tsx src/index.ts",
+    "render": "tsx src/index.ts --no-upload",
+    "auth": "tsx scripts/yt-auth.ts",
+    "voices": "tsx scripts/list-voices.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "ffmpeg-static": "^5.2.0",
+    "msedge-tts": "2.0.5",
+    "playwright": "1.60.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}

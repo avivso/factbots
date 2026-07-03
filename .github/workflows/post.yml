@@ -1,0 +1,44 @@
+name: factbots auto-post
+
+on:
+  schedule:
+    # every 4 hours (UTC) → 6 posts/day, the YouTube free-quota ceiling.
+    # GitHub cron can lag under load; that's fine, the fact is picked from the
+    # actual run time (stateless time-rotation).
+    - cron: "0 */4 * * *"
+  workflow_dispatch: {} # manual "Run workflow" button for testing
+
+# never let two runs overlap (they'd fight over the daily quota)
+concurrency:
+  group: factbots-post
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Fonts for the renderer (Arial-compatible)
+        run: sudo apt-get update && sudo apt-get install -y fonts-liberation fonts-noto-color-emoji
+
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Render + upload a Short
+        run: npm run make
+        env:
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+          YT_PRIVACY: public
+          ROTATE: time
