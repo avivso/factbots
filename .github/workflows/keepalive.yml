@@ -1,0 +1,31 @@
+name: keepalive
+
+# GitHub auto-disables scheduled workflows after 60 days with no repo commits.
+# This makes a tiny empty commit twice a month to reset that timer, so the
+# auto-poster never pauses itself. Commits made with GITHUB_TOKEN do not trigger
+# other workflows, so there is no loop.
+
+on:
+  schedule:
+    - cron: "0 3 1,16 * *" # 1st and 16th of each month, 03:00 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: factbots-keepalive
+  cancel-in-progress: false
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Empty commit to keep schedules alive
+        run: |
+          git config user.name "factbots-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit --allow-empty -m "keepalive: reset scheduled-workflow timer [skip ci]"
+          git push
